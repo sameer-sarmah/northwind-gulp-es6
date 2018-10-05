@@ -3,7 +3,7 @@ body {
     background: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%) no-repeat;
     text-align: center;
     font-family: 'Lobster', cursive;
-    background-image: url("/assets/Icy_Background.jpg");
+    background-image: url("/build/assets/Icy_Background.jpg");
     overflow-y: scroll;
 }
 

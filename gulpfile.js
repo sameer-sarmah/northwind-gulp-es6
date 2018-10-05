@@ -15,6 +15,7 @@ var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var rename = require('gulp-rename');
 var gulpCopy = require('gulp-copy');
+var runSequence = require('run-sequence');
 
 gulp.task("copy-assets",function(){
     return gulp.src(["src/assets/*.jpg"])
@@ -38,13 +39,6 @@ gulp.task("transpile-es6", function () {
         .pipe(reload({stream:true}));
 });
 
-gulp.task('html', function(){
-    gulp.src('src/index.html')
-	.pipe(gulp.dest('./build/'))
-    .pipe(reload({stream:true}));
-});
-
-
 gulp.task('styles', function() {
   gulp.src('src/styles/*.css')
     .pipe(importCss())
@@ -57,7 +51,7 @@ gulp.task('styles', function() {
 gulp.task('browser-sync', function() {
     browserSync.init({
         server: {
-            baseDir: "./build/"
+            baseDir: "./"
         }
     });
 });
@@ -68,5 +62,18 @@ gulp.task ('watch', function(){
   	gulp.watch('src/index.html', ['html']);
 });
 
+gulp.task('inject-js-css', function () {
+    var target = gulp.src('./src/index.html');
+    var sources = gulp.src(['./build/bundle.js', './build/css/main.css'], {read: false});
+    return target.pipe(inject(sources))
+      .pipe(gulp.dest('./'));
 
-gulp.task("default", ["html","styles","transpile-es6", "copy-assets",'browser-sync', 'watch']);
+  });
+
+gulp.task('build', function(callback) {
+    runSequence(["styles","transpile-es6","copy-assets"],
+                'inject-js-css','browser-sync', 'watch',
+                callback);
+  });
+
+gulp.task("default", ["build"]);
